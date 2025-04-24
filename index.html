@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kindle Clippings Reader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Light Theme Variables */
+            --bg-color: #f9f9f9;
+            --text-color: #333;
+            --panel-bg: #fff;
+            --panel-border: #eee;
+            --header-bg: #fff;
+            --subtle-bg: #fcfcfc;
+            --subtle-border: #ddd;
+            --highlight-bg: #eef;
+            --code-bg: #eee;
+            --button-primary-bg: #007bff;
+            --button-primary-hover: #0056b3;
+            --button-secondary-bg: #6c757d;
+            --button-secondary-hover: #5a6268;
+            --button-disabled-bg: #ccc;
+            --text-muted: #666;
+            --shadow-color: rgba(0,0,0,0.05);
+            --pre-bg: #f4f4f4;
+            --copy-button-bg: #eee;
+            --copy-button-text: #555;
+            --copy-button-border: #ddd;
+            --copy-button-hover-bg: #ddd;
+            --copy-button-hover-text: #111;
+            --copy-success-bg: #d4edda;
+            --copy-success-text: #155724;
+            --copy-success-border: #c3e6cb;
+        }
+
+        body.dark-mode {
+            /* Dark Theme Variables */
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --panel-bg: #2c2c2c;
+            --panel-border: #444;
+            --header-bg: #2c2c2c;
+            --subtle-bg: #252525;
+            --subtle-border: #555;
+            --highlight-bg: #3a3a5a;
+            --code-bg: #333;
+            --button-primary-bg: #0056b3;
+            --button-primary-hover: #004494;
+            --button-secondary-bg: #5a6268;
+            --button-secondary-hover: #4a5258;
+            --button-disabled-bg: #555;
+            --text-muted: #aaa;
+            --shadow-color: rgba(0,0,0,0.2);
+            --pre-bg: #333;
+            --copy-button-bg: #444;
+            --copy-button-text: #ccc;
+            --copy-button-border: #555;
+            --copy-button-hover-bg: #555;
+            --copy-button-hover-text: #eee;
+            --copy-success-bg: #1a472a;
+            --copy-success-text: #a4e0b3;
+            --copy-success-border: #2a673a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            padding: 15px 30px;
+            border-bottom: 1px solid var(--panel-border);
+            box-shadow: 0 1px 3px var(--shadow-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header .title-section h1 {
+            margin: 0;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        header .title-section p {
+            margin: 5px 0 0;
+            font-size: 0.9em;
+            color: var(--text-muted);
+        }
+
+        header code {
+            background-color: var(--code-bg);
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 0.95em;
+            color: var(--text-color);
+        }
+
+        .controls-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #lang-selector-section label {
+            margin-right: 5px;
+            font-size: 0.9em;
+            color: var(--text-muted);
+        }
+
+        #lang-selector {
+            padding: 4px 6px;
+            font-size: 0.9em;
+            border: 1px solid var(--subtle-border);
+            border-radius: 4px;
+            background-color: var(--panel-bg);
+            color: var(--text-color);
+        }
+
+        #dark-mode-toggle {
+            background: none;
+            border: 1px solid var(--subtle-border);
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 5px 8px;
+            font-size: 1.1em;
+            line-height: 1;
+            color: var(--text-muted);
+        }
+
+        #dark-mode-toggle:hover {
+            background-color: var(--code-bg);
+            color: var(--text-color);
+        }
+
+        main {
+            display: flex;
+            flex: 1;
+            padding: 20px;
+            gap: 20px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        #left-panel,
+        #right-panel {
+            display: none;
+        }
+
+        #initial-instructions {
+            display: block;
+            max-width: 700px;
+            width: 100%;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 5px;
+            padding: 25px 30px;
+            box-shadow: 0 1px 3px var(--shadow-color);
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+        #initial-instructions h2 {
+            margin-top: 0;
+            text-align: center;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+        }
+
+        #initial-instructions h3 {
+            margin-top: 25px;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 4px;
+        }
+
+        #initial-instructions ol {
+            padding-left: 25px;
+        }
+
+        #initial-instructions li {
+            margin-bottom: 8px;
+        }
+
+        #initial-instructions code {
+            background-color: var(--code-bg);
+            color: var(--text-color);
+        }
+
+        #initial-instructions p {
+            margin-bottom: 10px;
+        }
+
+        #file-input-section {
+            padding: 15px 0 5px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        #file-input-section label {
+            margin-right: 8px;
+            font-weight: 600;
+        }
+
+        #file-input {
+            color: var(--text-color);
+        }
+
+        #left-panel {
+            width: 300px;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 5px;
+            padding: 15px;
+            flex-direction: column;
+            box-shadow: 0 1px 3px var(--shadow-color);
+            flex-shrink: 0;
+        }
+
+        #search-bar {
+            width: calc(100% - 20px);
+            padding: 8px 10px;
+            margin-bottom: 15px;
+            border: 1px solid var(--subtle-border);
+            border-radius: 4px;
+            font-size: 0.9em;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        #book-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        #book-list li {
+            padding: 8px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            font-size: 0.95em;
+        }
+
+        #book-list li:hover,
+        #book-list li.active {
+            background-color: var(--highlight-bg);
+        }
+
+        #right-panel {
+            flex: 1;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 1px 3px var(--shadow-color);
+            overflow-y: auto;
+        }
+
+        #selected-book-title {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        #copy-all-button {
+            padding: 8px 15px;
+            margin-bottom: 20px;
+            margin-right: 10px;
+            background-color: var(--button-primary-bg);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s ease;
+        }
+
+        #copy-all-button:hover {
+            background-color: var(--button-primary-hover);
+        }
+
+        #copy-all-button:disabled {
+            background-color: var(--button-disabled-bg);
+            cursor: not-allowed;
+        }
+
+        #notes-display {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 24px;
+            background: var(--subtle-bg);
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            font-size: 0.98em;
+            line-height: 1.65;
+            white-space: pre-wrap;
+        }
+
+        #notes-display pre {
+            background-color: var(--pre-bg);
+            padding: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow: hidden;
+            margin-top: 8px;
+            margin-bottom: 16px;
+        }
+
+        #notes-display strong {
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .metadata-line {
+            position: relative;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .copy-single-button {
+            position: absolute;
+            right: 0;
+            top: 4px;
+            padding: 2px 6px;
+            font-size: 0.75em;
+            line-height: 1;
+            background-color: var(--copy-button-bg);
+            color: var(--copy-button-text);
+            border: 1px solid var(--copy-button-border);
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .copy-single-button:hover {
+            background-color: var(--copy-button-hover-bg);
+            color: var(--copy-button-hover-text);
+        }
+
+        .copy-single-button.copied {
+            background-color: var(--copy-success-bg);
+            color: var(--copy-success-text);
+            border-color: var(--copy-success-border);
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 0.8em;
+            color: var(--text-muted);
+            border-top: 1px solid var(--panel-border);
+            background-color: var(--header-bg);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 10px 15px;
+            }
+            .controls-section {
+                margin-top: 10px;
+                gap: 10px;
+            }
+            #lang-selector {
+                padding: 3px 5px;
+            }
+            #dark-mode-toggle {
+                padding: 4px 7px;
+            }
+            main {
+                padding: 10px;
+                gap: 10px;
+            }
+            #initial-instructions {
+                padding: 20px;
+                margin-top: 10px;
+            }
+            #file-input-section {
+                padding: 10px 0 5px;
+            }
+            main.loaded {
+                flex-direction: column;
+                justify-content: flex-start;
+            }
+
+            #left-panel {
+                width: auto;
+                margin-bottom: 10px;
+                max-height: 30vh;
+            }
+
+            #right-panel {
+                width: auto;
+            }
+            #notes-display {
+                padding: 15px;
+            }
+        }
+
+        #notes-display.read-mode-active .metadata-line {
+            display: none;
+        }
+
+        #notes-display.read-mode-active pre {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        #read-mode-toggle {
+            padding: 8px 12px;
+            margin-bottom: 20px;
+            background-color: var(--button-secondary-bg);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s ease;
+        }
+
+        #read-mode-toggle:hover {
+            background-color: var(--button-secondary-hover);
+        }
+
+        #read-mode-toggle:disabled {
+            background-color: var(--button-disabled-bg);
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="title-section">
+            <h1 data-i18n="appTitle">Kindle Clippings Reader</h1>
+            <p data-i18n="appSubtitle">View your Kindle notes & highlights from <code>My Clippings.txt</code></p>
+        </div>
+        <div class="controls-section">
+            <div id="lang-selector-section">
+                <label for="lang-selector" data-i18n="languageLabel">Language:</label>
+                <select id="lang-selector">
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                </select>
+            </div>
+            <button id="dark-mode-toggle" title="Toggle Dark Mode">🌙</button>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <div id="initial-instructions">
+            <h2 data-i18n="instructionsTitle">📂 How to Copy My Clippings.txt from Your Kindle</h2>
+            <p data-i18n="instructionsIntro">To use this app, you first need to copy the <code>My Clippings.txt</code> file from your Kindle.</p>
+            
+            <section id="file-input-section">
+                <label for="file-input" data-i18n="fileInputLabel">Choose Clippings File:</label>
+                <input type="file" id="file-input" accept=".txt">
+            </section>
+
+            <h3 data-i18n="instructionsConnectTitle">1. Connect Your Kindle</h3>
+            <ol>
+                <li data-i18n="instructionsConnectStep1">Power on your Kindle device.</li>
+                <li data-i18n="instructionsConnectStep2">Use a USB cable to connect it to your computer.</li>
+                <li data-i18n="instructionsConnectStep3">Your Kindle should appear as an external drive (often named "Kindle") on your computer.</li>
+            </ol>
+
+            <h3 data-i18n="instructionsLocateTitle">2. Locate the File</h3>
+            <ol>
+                <li data-i18n="instructionsLocateStep1">Open the Kindle drive on your computer.</li>
+                <li data-i18n="instructionsLocateStep2">Navigate into the <strong data-i18n="documentsFolder">Documents</strong> folder.</li>
+                <li data-i18n="instructionsLocateStep3">Inside the Documents folder, find the file named <code>My Clippings.txt</code>.</li>
+            </ol>
+
+            <h3 data-i18n="instructionsCopyTitle">3. Copy the File</h3>
+            <p data-i18n="instructionsCopyDesc">Copy this <code>My Clippings.txt</code> file to your computer. You can then load it using the button above.</p>
+
+            <h3 data-i18n="instructionsNotesTitle">💡 Notes</h3>
+            <ul>
+                <li data-i18n="instructionsNotesItem1">The <code>My Clippings.txt</code> file contains all your Kindle highlights, notes, and bookmarks.</li>
+                <li data-i18n="instructionsNotesItem2">It includes annotations from both purchased books and personal documents.</li>
+                <li data-i18n="instructionsNotesItem3">Each time you add new highlights, this file updates automatically—remember to recopy it and reload it here when needed.</li>
+            </ul>
+
+            <h3 data-i18n="instructionsTroubleshootingTitle">⚠️ Troubleshooting</h3>
+            <ul>
+                <li data-i18n="instructionsTroubleshootingItem1">If you don't see the file, ensure you've made at least one highlight or note on your Kindle.</li>
+                <li data-i18n="instructionsTroubleshootingItem2">The file is always located directly inside the <strong data-i18n="documentsFolder">Documents</strong> folder of your Kindle drive.</li>
+            </ul>
+        </div>
+
+        <aside id="left-panel">
+            <input type="text" id="search-bar" placeholder="Search books..." data-i18n-placeholder="searchPlaceholder" disabled>
+            <ul id="book-list"></ul>
+        </aside>
+        <section id="right-panel">
+            <h2 id="selected-book-title" data-i18n="initialRightTitle"></h2>
+            <button id="copy-all-button" data-i18n="copyButton" disabled>Copy All Notes</button>
+            <button id="read-mode-toggle" data-i18n="readModeEnter" disabled>Read Mode</button>
+            <div id="notes-display"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p data-i18n="footerText">No data is uploaded. All processing happens in your browser.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const translations = {
+                en: {
+                    appTitle: "Kindle Clippings Reader",
+                    appSubtitle: "View your Kindle notes & highlights from <code>My Clippings.txt</code>",
+                    languageLabel: "Language:",
+                    instructionsTitle: "📂 How to Copy My Clippings.txt from Your Kindle",
+                    instructionsIntro: "To use this app, you first need to copy the <code>My Clippings.txt</code> file from your Kindle.",
+                    fileInputLabel: "Choose Clippings File:",
+                    instructionsConnectTitle: "1. Connect Your Kindle",
+                    instructionsConnectStep1: "Power on your Kindle device.",
+                    instructionsConnectStep2: "Use a USB cable to connect it to your computer.",
+                    instructionsConnectStep3: "Your Kindle should appear as an external drive (often named \"Kindle\") on your computer.",
+                    instructionsLocateTitle: "2. Locate the File",
+                    instructionsLocateStep1: "Open the Kindle drive on your computer.",
+                    instructionsLocateStep2: "Navigate into the <strong>Documents</strong> folder.",
+                    instructionsLocateStep3: "Inside the Documents folder, find the file named <code>My Clippings.txt</code>.",
+                    instructionsCopyTitle: "3. Copy the File",
+                    instructionsCopyDesc: "Copy this <code>My Clippings.txt</code> file to your computer. You can then load it using the button above.",
+                    instructionsNotesTitle: "💡 Notes",
+                    instructionsNotesItem1: "The <code>My Clippings.txt</code> file contains all your Kindle highlights, notes, and bookmarks.",
+                    instructionsNotesItem2: "It includes annotations from both purchased books and personal documents.",
+                    instructionsNotesItem3: "Each time you add new highlights, this file updates automatically—remember to recopy it and reload it here when needed.",
+                    instructionsTroubleshootingTitle: "⚠️ Troubleshooting",
+                    instructionsTroubleshootingItem1: "If you don't see the file, ensure you've made at least one highlight or note on your Kindle.",
+                    instructionsTroubleshootingItem2: "The file is always located directly inside the <strong data-i18n=\"documentsFolder\">Documents</strong> folder of your Kindle drive.",
+                    searchPlaceholder: "Search books...",
+                    initialRightTitle: "Please select your Clippings file",
+                    copyButton: "Copy All Notes",
+                    footerText: "No data is uploaded. All processing happens in your browser.",
+                    loadingMessage: "Loading clippings...",
+                    selectBookMessage: "Select a book to view notes",
+                    noClippingsFoundMessage: "No valid clippings found in the file. Ensure it follows the standard Kindle format.",
+                    emptyFileMessage: "The selected file appears to be empty.",
+                    parsingFailedMessage: "Could not parse any valid clippings from the file.",
+                    noBooksFoundMessage: "No Books Found",
+                    noFilterMatchMessage: "No books match filter.",
+                    errorProcessingMessage: "Error processing the file content. Check the console for details.",
+                    errorReadingMessage: "Error reading the selected file.",
+                    copiedMessage: "Copied!",
+                    alertOnlyTxt: "Please select a plain text (.txt) file.",
+                    alertNoValidClippings: "Could not find any valid clippings in the selected file. Please check the file format or select a different file.",
+                    alertErrorProcessing: "Error processing the file content: ",
+                    alertErrorReading: "Error reading the selected file.",
+                    alertCopyFailed: "Failed to copy notes. See console for details.",
+                    documentsFolder: "Documents",
+                    copySingleButton: "Copy",
+                    readModeEnter: "Read Mode",
+                    readModeExit: "Exit Read Mode"
+                },
+                es: {
+                    appTitle: "Lector de Recortes de Kindle",
+                    appSubtitle: "Ve tus notas y subrayados de Kindle desde <code>My Clippings.txt</code>",
+                    languageLabel: "Idioma:",
+                    instructionsTitle: "📂 Cómo Copiar My Clippings.txt de tu Kindle",
+                    instructionsIntro: "Para usar esta aplicación, primero necesitas copiar el archivo <code>My Clippings.txt</code> de tu Kindle.",
+                    fileInputLabel: "Seleccionar archivo de Recortes:",
+                    instructionsConnectTitle: "1. Conecta tu Kindle",
+                    instructionsConnectStep1: "Enciende tu dispositivo Kindle.",
+                    instructionsConnectStep2: "Usa un cable USB para conectarlo a tu computadora.",
+                    instructionsConnectStep3: "Tu Kindle debería aparecer como una unidad externa (a menudo llamada \"Kindle\") en tu computadora.",
+                    instructionsLocateTitle: "2. Localiza el Archivo",
+                    instructionsLocateStep1: "Abre la unidad Kindle en tu computadora.",
+                    instructionsLocateStep2: "Navega hasta la carpeta <strong>Documentos</strong>.",
+                    instructionsLocateStep3: "Dentro de la carpeta Documentos, busca el archivo llamado <code>My Clippings.txt</code>.",
+                    instructionsCopyTitle: "3. Copia el Archivo",
+                    instructionsCopyDesc: "Copia este archivo <code>My Clippings.txt</code> a tu computadora. Luego puedes cargarlo usando el botón de arriba.",
+                    instructionsNotesTitle: "💡 Notas",
+                    instructionsNotesItem1: "El archivo <code>My Clippings.txt</code> contiene todos tus subrayados, notas y marcadores de Kindle.",
+                    instructionsNotesItem2: "Incluye anotaciones tanto de libros comprados como de documentos personales.",
+                    instructionsNotesItem3: "Cada vez que agregas nuevos subrayados, este archivo se actualiza automáticamente; recuerda volver a copiarlo y recargarlo aquí cuando sea necesario.",
+                    instructionsTroubleshootingTitle: "⚠️ Solución de Problemas",
+                    instructionsTroubleshootingItem1: "Si no ves el archivo, asegúrate de haber hecho al menos un subrayado o nota en tu Kindle.",
+                    instructionsTroubleshootingItem2: "El archivo siempre se encuentra directamente dentro de la carpeta <strong data-i18n=\"documentsFolder\">Documentos</strong> de tu unidad Kindle.",
+                    searchPlaceholder: "Buscar libros...",
+                    initialRightTitle: "Por favor, selecciona tu archivo de Recortes",
+                    copyButton: "Copiar Todas las Notas",
+                    footerText: "No se suben datos. Todo el procesamiento ocurre en tu navegador.",
+                    loadingMessage: "Cargando recortes...",
+                    selectBookMessage: "Selecciona un libro para ver las notas",
+                    noClippingsFoundMessage: "No se encontraron recortes válidos en el archivo. Asegúrate de que sigue el formato estándar de Kindle.",
+                    emptyFileMessage: "El archivo seleccionado parece estar vacío.",
+                    parsingFailedMessage: "No se pudieron analizar recortes válidos del archivo.",
+                    noBooksFoundMessage: "No se Encontraron Libros",
+                    noFilterMatchMessage: "Ningún libro coincide con el filtro.",
+                    errorProcessingMessage: "Error procesando el contenido del archivo. Revisa la consola para más detalles.",
+                    errorReadingMessage: "Error leyendo el archivo seleccionado.",
+                    copiedMessage: "¡Copiado!",
+                    alertOnlyTxt: "Por favor, selecciona un archivo de texto plano (.txt).",
+                    alertNoValidClippings: "No se pudieron encontrar recortes válidos en el archivo seleccionado. Por favor, revisa el formato del archivo o selecciona uno diferente.",
+                    alertErrorProcessing: "Error procesando el contenido del archivo: ",
+                    alertErrorReading: "Error leyendo el archivo seleccionado.",
+                    alertCopyFailed: "Error al copiar las notas. Revisa la consola para más detalles.",
+                    documentsFolder: "Documentos",
+                    copySingleButton: "Copiar",
+                    readModeEnter: "Modo Lectura",
+                    readModeExit: "Salir Modo Lectura"
+                }
+            };
+            let currentLang = 'en';
+
+            function setLanguage(lang) {
+                currentLang = lang;
+                document.documentElement.lang = lang;
+                localStorage.setItem('preferredLang', lang);
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.dataset.i18n;
+                    if (translations[lang] && translations[lang][key]) {
+                        if ([ 'appSubtitle', 'instructionsIntro', 'instructionsLocateStep2', 'instructionsLocateStep3', 'instructionsCopyDesc', 'instructionsNotesItem1', 'instructionsNotesItem2', 'instructionsTroubleshootingItem2'].includes(key)) {
+                          el.innerHTML = translations[lang][key];
+                        } else {
+                           el.textContent = translations[lang][key];
+                        }
+                    }
+                });
+                 document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.dataset.i18nPlaceholder;
+                    if (translations[lang] && translations[lang][key]) {
+                        el.placeholder = translations[lang][key];
+                    }
+                });
+                langSelectorElement.value = lang;
+                
+                 if (initialInstructionsElement.style.display === 'block') {
+                      initialInstructionsElement.querySelector('h2').textContent = translations[currentLang].instructionsTitle;
+                 } else if (sortedBookTitles.length === 0 && allClippings) {
+                    selectedBookTitleElement.textContent = translations[currentLang].noBooksFoundMessage;
+                    notesDisplayElement.innerHTML = `<p>${translations[currentLang].noClippingsFoundMessage}</p>`;
+                 } else if (activeBookTitle) {
+                 } else {
+                     selectedBookTitleElement.textContent = translations[currentLang].selectBookMessage;
+                     notesDisplayElement.innerHTML = `<p>${translations[currentLang].selectBookMessage}</p>`;
+                 }
+            }
+
+            const langSelectorElement = document.getElementById('lang-selector');
+            const mainElement = document.getElementById('main-content');
+            const initialInstructionsElement = document.getElementById('initial-instructions');
+            const leftPanelElement = document.getElementById('left-panel');
+            const rightPanelElement = document.getElementById('right-panel');
+            const fileInputElement = document.getElementById('file-input');
+            const bookListElement = document.getElementById('book-list');
+            const searchBarElement = document.getElementById('search-bar');
+            const selectedBookTitleElement = document.getElementById('selected-book-title');
+            const notesDisplayElement = document.getElementById('notes-display');
+            const copyAllButtonElement = document.getElementById('copy-all-button');
+            const readModeToggleButton = document.getElementById('read-mode-toggle');
+            const darkModeToggleButton = document.getElementById('dark-mode-toggle');
+
+            let allClippings = {};
+            let sortedBookTitles = [];
+            let activeBookTitle = null;
+
+            function showInstructions() {
+                initialInstructionsElement.style.display = 'block';
+                leftPanelElement.style.display = 'none';
+                rightPanelElement.style.display = 'none';
+                mainElement.style.justifyContent = 'center';
+                mainElement.classList.remove('loaded');
+                initialInstructionsElement.querySelector('h2').textContent = translations[currentLang].instructionsTitle;
+            }
+
+            function showContent() {
+                initialInstructionsElement.style.display = 'none';
+                leftPanelElement.style.display = 'flex';
+                rightPanelElement.style.display = 'block';
+                mainElement.style.justifyContent = 'flex-start';
+                mainElement.classList.add('loaded');
+                selectedBookTitleElement.textContent = translations[currentLang].selectBookMessage;
+                notesDisplayElement.innerHTML = `<p>${translations[currentLang].selectBookMessage}</p>`;
+                applyReadModeState(localStorage.getItem('readModeEnabled') === 'true');
+                readModeToggleButton.disabled = !(sortedBookTitles.length > 0);
+                applyDarkModeState(localStorage.getItem('darkModeEnabled') === 'true');
+            }
+
+            function parseClippingDate(metaLine) {
+                const dateMatch = metaLine.match(/(?:Added on|Añadido el) (.*)/i);
+                if (!dateMatch || !dateMatch[1]) {
+                    return new Date(0);
+                }
+                let dateString = dateMatch[1].trim();
+                let parsedDate = new Date(dateString);
+                if (!isNaN(parsedDate)) {
+                    return parsedDate;
+                }
+                const spanishMonths = {
+                    'enero': 0, 'febrero': 1, 'marzo': 2, 'abril': 3, 'mayo': 4, 'junio': 5,
+                    'julio': 6, 'agosto': 7, 'septiembre': 8, 'octubre': 9, 'noviembre': 10, 'diciembre': 11
+                };
+                const spanishDateMatch = dateString.match(/(\d{1,2}) de (\w+) de (\d{4}) (\d{2}):(\d{2}):(\d{2})/i);
+                if (spanishDateMatch) {
+                    const day = parseInt(spanishDateMatch[1], 10);
+                    const monthName = spanishDateMatch[2].toLowerCase();
+                    const year = parseInt(spanishDateMatch[3], 10);
+                    const hours = parseInt(spanishDateMatch[4], 10);
+                    const minutes = parseInt(spanishDateMatch[5], 10);
+                    const seconds = parseInt(spanishDateMatch[6], 10);
+                    if (monthName in spanishMonths) {
+                        const monthIndex = spanishMonths[monthName];
+                        parsedDate = new Date(year, monthIndex, day, hours, minutes, seconds);
+                        if (!isNaN(parsedDate)) {
+                            return parsedDate;
+                        }
+                    }
+                }
+                console.warn("Could not parse date string:", dateString);
+                return new Date(0);
+            }
+
+            function parseClippings(text) {
+                const clippings = {};
+                activeBookTitle = null;
+                copyAllButtonElement.disabled = true;
+                selectedBookTitleElement.textContent = '';
+                notesDisplayElement.innerHTML = '';
+                bookListElement.innerHTML = '';
+                searchBarElement.value = '';
+                searchBarElement.disabled = true;
+
+                if (!text) {
+                    notesDisplayElement.innerHTML = `<p style="color: orange;">${translations[currentLang].emptyFileMessage}</p>`;
+                    selectedBookTitleElement.textContent = translations[currentLang].emptyFileMessage;
+                    return {};
+                }
+
+                const entries = text.replace(/\r\n/g, '\n').split('==========\n').filter(entry => entry.trim() !== '');
+
+                if (entries.length === 0) {
+                     notesDisplayElement.innerHTML = `<p style="color: orange;">${translations[currentLang].noClippingsFoundMessage}</p>`;
+                     selectedBookTitleElement.textContent = translations[currentLang].noClippingsFoundMessage;
+                     return {};
+                }
+
+                entries.forEach(entry => {
+                    const lines = entry.trim().split('\n');
+                    if (lines.length < 4 || lines[2].trim() !== '') {
+                        if (lines.length === 5 && lines[3].trim().startsWith('<') && lines[3].trim().endsWith('>')) {
+                             console.warn("Skipping entry with extra message line:", entry);
+                             return;
+                        }
+                        console.warn("Skipping potentially malformed entry:", entry);
+                        return;
+                    }
+                    const title = lines[0].trim();
+                    const metaLine = lines[1].trim();
+                    const content = lines.slice(3).join('\n').trim();
+                    const dateAdded = parseClippingDate(metaLine);
+                    if (!content) {
+                        console.log("Skipping entry with no content (likely a bookmark):", title);
+                        return;
+                    }
+                    if (!clippings[title]) {
+                        clippings[title] = [];
+                    }
+                    clippings[title].push({
+                        metaLine: metaLine,
+                        dateAdded: dateAdded,
+                        content
+                    });
+                });
+
+                const bookLastHighlightDates = {};
+                for (const title in clippings) {
+                    let lastDate = new Date(0);
+                    clippings[title].forEach(clip => {
+                        if (clip.dateAdded > lastDate) {
+                            lastDate = clip.dateAdded;
+                        }
+                    });
+                    bookLastHighlightDates[title] = lastDate;
+                }
+                sortedBookTitles = Object.keys(clippings).sort((a, b) => {
+                    return bookLastHighlightDates[b] - bookLastHighlightDates[a];
+                });
+
+                searchBarElement.disabled = !(sortedBookTitles.length > 0);
+                
+                if (Object.keys(clippings).length > 0) {
+                     selectedBookTitleElement.textContent = 'Select a book to view notes';
+                     notesDisplayElement.innerHTML = '<p>Select a book from the list on the left.</p>';
+                     return clippings;
+                } else {
+                    notesDisplayElement.innerHTML = '<p style="color: orange;">Could not parse any valid clippings from the file.</p>';
+                     selectedBookTitleElement.textContent = 'Parsing Failed';
+                     return {};
+                }
+            }
+
+            function displayBookList(filter = '') {
+                bookListElement.innerHTML = '';
+                const lowerCaseFilter = filter.toLowerCase();
+                sortedBookTitles
+                    .filter(title => title.toLowerCase().includes(lowerCaseFilter))
+                    .forEach(title => {
+                        const li = document.createElement('li');
+                        li.textContent = title;
+                        li.dataset.title = title;
+                        li.addEventListener('click', () => selectBook(title));
+                        if(title === activeBookTitle) {
+                            li.classList.add('active');
+                        }
+                        bookListElement.appendChild(li);
+                    });
+                if (bookListElement.children.length === 0 && sortedBookTitles.length > 0) {
+                     bookListElement.innerHTML = `<li style="font-style: italic; color: #888;">${translations[currentLang].noFilterMatchMessage}</li>`;
+                } else if (sortedBookTitles.length === 0 && !notesDisplayElement.innerHTML) {
+                    notesDisplayElement.innerHTML = `<p style="color: orange;">${translations[currentLang].noClippingsFoundMessage}</p>`;
+                }
+            }
+
+            function formatClippingMarkdown(clipping) {
+                const metaString = `**${clipping.metaLine}**`;
+                const escapedContent = clipping.content.replace(/`/g, '\\`');
+                return `${metaString}\n  ${escapedContent}`;
+            }
+
+            function generateAllNotesMarkdown(title, clippings) {
+                let markdown = `# ${title}\n\n`;
+                markdown += clippings.map(formatClippingMarkdown).join('\n\n');
+                return markdown;
+            }
+
+            function displayNotesForBook(title) {
+                const clippings = allClippings[title];
+                if (!clippings) return;
+                selectedBookTitleElement.textContent = title;
+                notesDisplayElement.innerHTML = '';
+                clippings.forEach((clipping, index) => {
+                    const metaDiv = document.createElement('div');
+                    metaDiv.className = 'metadata-line';
+                    const metaTextSpan = document.createElement('span');
+                    metaTextSpan.innerHTML = `<strong>${clipping.metaLine}</strong>`;
+                    metaDiv.appendChild(metaTextSpan);
+
+                    const copyBtn = document.createElement('button');
+                    copyBtn.textContent = translations[currentLang].copySingleButton;
+                    copyBtn.className = 'copy-single-button';
+                    copyBtn.dataset.clippingIndex = index;
+                    copyBtn.addEventListener('click', handleSingleCopyClick);
+                    metaDiv.appendChild(copyBtn);
+
+                    const contentPre = document.createElement('pre');
+                    contentPre.textContent = clipping.content;
+                    notesDisplayElement.appendChild(metaDiv);
+                    notesDisplayElement.appendChild(contentPre);
+                });
+                copyAllButtonElement.disabled = false;
+                activeBookTitle = title;
+                document.querySelectorAll('#book-list li').forEach(li => {
+                    li.classList.toggle('active', li.dataset.title === title);
+                });
+                
+                // Scroll window to top to see start of notes
+                window.scrollTo(0, 0);
+            }
+
+            function selectBook(title) {
+                displayNotesForBook(title);
+            }
+
+            function handleSingleCopyClick(event) {
+                const button = event.target;
+                const clippingIndex = parseInt(button.dataset.clippingIndex, 10);
+                if (!activeBookTitle || isNaN(clippingIndex) || !allClippings[activeBookTitle] || !allClippings[activeBookTitle][clippingIndex]) {
+                    console.error("Could not find clipping data for index:", clippingIndex);
+                    return;
+                }
+
+                const clippingToCopy = allClippings[activeBookTitle][clippingIndex];
+                const markdownToCopy = formatClippingMarkdown(clippingToCopy);
+
+                navigator.clipboard.writeText(markdownToCopy)
+                    .then(() => {
+                        const originalText = translations[currentLang].copySingleButton;
+                        button.textContent = translations[currentLang].copiedMessage;
+                        button.classList.add('copied');
+                        button.disabled = true;
+                        setTimeout(() => {
+                             button.textContent = originalText;
+                             button.classList.remove('copied');
+                             button.disabled = false;
+                        }, 1500);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy single note: ', err);
+                        alert(translations[currentLang].alertCopyFailed);
+                    });
+            }
+
+            searchBarElement.addEventListener('input', (e) => {
+                displayBookList(e.target.value);
+            });
+
+            copyAllButtonElement.addEventListener('click', () => {
+                if (!activeBookTitle || !allClippings[activeBookTitle]) return;
+                const markdownToCopy = generateAllNotesMarkdown(activeBookTitle, allClippings[activeBookTitle]);
+                navigator.clipboard.writeText(markdownToCopy)
+                    .then(() => {
+                        const originalText = translations[currentLang].copyButton;
+                        copyAllButtonElement.textContent = translations[currentLang].copiedMessage;
+                        setTimeout(() => { copyAllButtonElement.textContent = originalText; }, 1500);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy notes: ', err);
+                        alert(translations[currentLang].alertCopyFailed);
+                    });
+            });
+
+            langSelectorElement.addEventListener('change', (e) => {
+                setLanguage(e.target.value);
+            });
+
+            fileInputElement.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) {
+                    showInstructions();
+                    return;
+                }
+
+                if (file.type && file.type !== 'text/plain') {
+                     alert(translations[currentLang].alertOnlyTxt);
+                     fileInputElement.value = '';
+                     showInstructions();
+                     return;
+                 }
+
+                initialInstructionsElement.querySelector('h2').textContent = translations[currentLang].loadingMessage;
+
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    try {
+                        const fileContent = e.target.result;
+                        if (fileContent.length > 10 * 1024 * 1024) {
+                            console.warn("Clippings file might be larger than 10MB...");
+                        }
+                        
+                        allClippings = parseClippings(fileContent);
+                        
+                        if (sortedBookTitles.length > 0) {
+                             showContent();
+                             displayBookList();
+                        } else {
+                             showInstructions();
+                             initialInstructionsElement.querySelector('h2').textContent = translations[currentLang].instructionsTitle;
+                             alert(translations[currentLang].alertNoValidClippings);
+                        }
+
+                    } catch (error) {
+                        console.error('Error processing file content:', error);
+                         showInstructions();
+                         initialInstructionsElement.querySelector('h2').textContent = translations[currentLang].errorProcessingMessage;
+                         alert(`${translations[currentLang].alertErrorProcessing}${error.message}.`);
+                    }
+                };
+
+                reader.onerror = (e) => {
+                    console.error("File reading error:", e);
+                     showInstructions();
+                     initialInstructionsElement.querySelector('h2').textContent = translations[currentLang].errorReadingMessage;
+                     alert(translations[currentLang].alertErrorReading);
+                };
+
+                reader.readAsText(file);
+            });
+
+            function applyReadModeState(isEnabled) {
+                if (isEnabled) {
+                    notesDisplayElement.classList.add('read-mode-active');
+                    readModeToggleButton.textContent = translations[currentLang].readModeExit;
+                    readModeToggleButton.setAttribute('data-i18n', 'readModeExit');
+                } else {
+                    notesDisplayElement.classList.remove('read-mode-active');
+                    readModeToggleButton.textContent = translations[currentLang].readModeEnter;
+                    readModeToggleButton.setAttribute('data-i18n', 'readModeEnter');
+                }
+            }
+
+            readModeToggleButton.addEventListener('click', () => {
+                const newState = !notesDisplayElement.classList.contains('read-mode-active');
+                applyReadModeState(newState);
+                localStorage.setItem('readModeEnabled', newState);
+            });
+
+            function applyDarkModeState(isEnabled) {
+                const body = document.body;
+                if (isEnabled) {
+                    body.classList.add('dark-mode');
+                    darkModeToggleButton.textContent = '☀️';
+                    darkModeToggleButton.title = 'Switch to Light Mode';
+                } else {
+                    body.classList.remove('dark-mode');
+                    darkModeToggleButton.textContent = '🌙';
+                    darkModeToggleButton.title = 'Switch to Dark Mode';
+                }
+            }
+
+            darkModeToggleButton.addEventListener('click', () => {
+                const isDarkMode = document.body.classList.contains('dark-mode');
+                const newState = !isDarkMode;
+                applyDarkModeState(newState);
+                localStorage.setItem('darkModeEnabled', newState);
+            });
+
+            const preferredLang = localStorage.getItem('preferredLang');
+            let initialLang = 'en';
+
+            if (preferredLang && translations[preferredLang]) {
+                 initialLang = preferredLang;
+             } else {
+                 const browserLang = navigator.language || navigator.userLanguage;
+                 if (browserLang) {
+                    const baseLang = browserLang.split('-')[0].toLowerCase();
+                    if (translations[baseLang]) {
+                        initialLang = baseLang;
+                    }
+                 }
+             }
+             
+             setLanguage(initialLang);
+             showInstructions();
+
+        });
+    </script>
+</body>
+</html> 
