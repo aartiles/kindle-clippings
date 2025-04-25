@@ -9,6 +9,10 @@ A lightweight, open-source HTML app to read and manage your Kindle highlights an
 
 > Perfect for readers who want to organize their Kindle annotations without relying on cloud services or third-party apps.
 
+## ✨ Demo
+
+![Demo GIF](kindle-clippings-reader-640.gif)
+
 ---
 
 ## 🚀 How to Use
