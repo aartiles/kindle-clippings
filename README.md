@@ -34,7 +34,7 @@ A lightweight, open-source HTML app to read and manage your Kindle highlights an
 ## 🌐 Prefer a Hosted Version?
 You can also use the app online at:
 
-**➡️ [https://kindle-clippings-nine.vercel.app/](https://kindle-clippings-nine.vercel.app/)**
+**➡️ [https://kindle-clippings-reader.vercel.app/](https://kindle-clippings-reader.vercel.app/)**
 
 Even though it runs in your browser, **all processing is done locally**.  
 No data from your `My Clippings.txt` file is ever sent over the network.
